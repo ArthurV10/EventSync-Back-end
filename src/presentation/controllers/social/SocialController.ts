@@ -12,7 +12,7 @@ export class SocialController {
     async requestFriendship(request: Request, response: Response): Promise<Response> {
         const { eventId } = request.params;
         const { addresseeId } = request.body;
-        const requesterId = request.user.id;
+        const requesterId = (request as any).user.id;
 
         const friendshipRepo = new PrismaFriendshipRepository();
         const registrationRepo = new PrismaRegistrationRepository();
@@ -27,7 +27,7 @@ export class SocialController {
     async respondFriendship(request: Request, response: Response): Promise<Response> {
         const { requestId } = request.params;
         const { action } = request.body; // ACCEPT or REJECT
-        const userId = request.user.id;
+        const userId = (request as any).user.id;
 
         const friendshipRepo = new PrismaFriendshipRepository();
         const useCase = new RespondFriendshipUseCase(friendshipRepo);
@@ -39,7 +39,7 @@ export class SocialController {
 
     async sendMessage(request: Request, response: Response): Promise<Response> {
         const { receiverId, content } = request.body;
-        const senderId = request.user.id;
+        const senderId = (request as any).user.id;
 
         const messageRepo = new PrismaMessageRepository();
         const friendshipRepo = new PrismaFriendshipRepository();
@@ -52,7 +52,7 @@ export class SocialController {
 
     async listMessages(request: Request, response: Response): Promise<Response> {
         const { friendId } = request.params;
-        const userId = request.user.id;
+        const userId = (request as any).user.id;
 
         const messageRepo = new PrismaMessageRepository();
         const friendshipRepo = new PrismaFriendshipRepository();

@@ -22,7 +22,7 @@ export class RegistrationController {
 
     async index(request: Request, response: Response): Promise<Response> {
         const { eventId } = request.params;
-        const userId = request.user.id;
+        const userId = (request as any).user.id;
 
         const registrationRepository = new PrismaRegistrationRepository();
         const eventRepository = new PrismaEventRepository();
@@ -35,7 +35,7 @@ export class RegistrationController {
 
     async approve(request: Request, response: Response): Promise<Response> {
         const { id } = request.params;
-        const userId = request.user.id; // Organizador
+        const userId = (request as any).user.id; // Organizador
 
         const registrationRepository = new PrismaRegistrationRepository();
         const eventRepository = new PrismaEventRepository();
@@ -50,7 +50,7 @@ export class RegistrationController {
 
     async reject(request: Request, response: Response): Promise<Response> {
         const { id } = request.params;
-        const userId = request.user.id;
+        const userId = (request as any).user.id;
 
         const registrationRepository = new PrismaRegistrationRepository();
         const eventRepository = new PrismaEventRepository();

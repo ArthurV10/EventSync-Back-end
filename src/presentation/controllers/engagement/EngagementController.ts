@@ -11,7 +11,7 @@ export class EngagementController {
     async createReview(request: Request, response: Response): Promise<Response> {
         const { eventId } = request.params;
         const { rating, comment } = request.body;
-        const userId = request.user.id;
+        const userId = (request as any).user.id;
 
         const reviewRepo = new PrismaReviewRepository();
         const registrationRepo = new PrismaRegistrationRepository();
@@ -26,7 +26,7 @@ export class EngagementController {
 
     async issueCertificate(request: Request, response: Response): Promise<Response> {
         const { eventId } = request.params;
-        const userId = request.user.id; // Ou pode passar userId no body se for admin gerando para usuário, mas UseCase assume user logado = participante.
+        const userId = (request as any).user.id; // Ou pode passar userId no body se for admin gerando para usuário, mas UseCase assume user logado = participante.
 
         const certRepo = new PrismaCertificateRepository();
         const registrationRepo = new PrismaRegistrationRepository();

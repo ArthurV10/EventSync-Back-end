@@ -8,7 +8,7 @@ import { PrismaEventRepository } from '../../../infrastructure/persistence/prism
 export class CheckinController {
     async getCard(request: Request, response: Response): Promise<Response> {
         const { registrationId } = request.params;
-        const userId = request.user.id;
+        const userId = (request as any).user.id;
 
         const registrationRepository = new PrismaRegistrationRepository();
         const getParticipantCardUseCase = new GetParticipantCardUseCase(registrationRepository);
@@ -21,7 +21,7 @@ export class CheckinController {
     async create(request: Request, response: Response): Promise<Response> {
         const { eventId } = request.params; // Se rota for /events/:eventId/checkin
         const { registrationId } = request.body;
-        const organizerId = request.user.id;
+        const organizerId = (request as any).user.id;
 
         const checkinRepository = new PrismaCheckinRepository();
         const registrationRepository = new PrismaRegistrationRepository();

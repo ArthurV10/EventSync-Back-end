@@ -5,7 +5,7 @@ import { PrismaNotificationRepository } from '../../../infrastructure/persistenc
 
 export class NotificationController {
     async list(request: Request, response: Response): Promise<Response> {
-        const userId = request.user.id;
+        const userId = (request as any).user.id;
         const repo = new PrismaNotificationRepository();
         const useCase = new ListNotificationsUseCase(repo);
         const notifications = await useCase.execute(userId);

@@ -26,11 +26,11 @@ export function ensureAuthenticated(
         ) as IPayload;
 
         // Adiciona o id do usuário no request
-        request.user = {
+        (request as any).user = {
             id: user_id,
         };
 
-        next();
+        return next();
     } catch {
         throw new AppError('Invalid token', 401);
     }
