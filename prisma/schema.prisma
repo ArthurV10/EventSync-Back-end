@@ -38,6 +38,7 @@ enum RegistrationStatus {
 enum FriendshipStatus {
   PENDING
   ACCEPTED
+  REJECTED
 }
 
 model User {
@@ -62,6 +63,8 @@ model User {
   
   sent_messages         Message[] @relation("SentMessages")
   received_messages     Message[] @relation("ReceivedMessages")
+  
+  notifications         Notification[]
 }
 
 model Event {
@@ -84,6 +87,7 @@ model Event {
   status                EventStatus @default(DRAFT)
   banner_url            String?
   workload_hours        Int?
+  payment_info          String?     // Chave PIX ou instruções
   created_at            DateTime    @default(now())
 
   registrations         Registration[]
@@ -161,4 +165,14 @@ model Certificate {
   issued_at       DateTime @default(now())
 
   @@unique([event_id, user_id])
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  user_id     String
+  user        User     @relation(fields: [user_id], references: [id])
+  title       String
+  content     String
+  read        Boolean  @default(false)
+  created_at  DateTime @default(now())
 }

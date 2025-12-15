@@ -4,11 +4,12 @@ import { ListEventRegistrationsUseCase } from '../../../application/usecases/reg
 import { ManageRegistrationStatusUseCase } from '../../../application/usecases/registrations/ManageRegistrationStatusUseCase';
 import { PrismaRegistrationRepository } from '../../../infrastructure/persistence/prisma/repositories/PrismaRegistrationRepository';
 import { PrismaEventRepository } from '../../../infrastructure/persistence/prisma/repositories/PrismaEventRepository';
+import { PrismaNotificationRepository } from '../../../infrastructure/persistence/prisma/repositories/PrismaNotificationRepository';
 
 export class RegistrationController {
     async create(request: Request, response: Response): Promise<Response> {
         const { eventId } = request.params;
-        const userId = request.user.id;
+        const userId = (request as any).user.id;
 
         const registrationRepository = new PrismaRegistrationRepository();
         const eventRepository = new PrismaEventRepository();
@@ -38,13 +39,11 @@ export class RegistrationController {
 
         const registrationRepository = new PrismaRegistrationRepository();
         const eventRepository = new PrismaEventRepository();
-        const manageRegistrationStatusUseCase = new ManageRegistrationStatusUseCase(registrationRepository, eventRepository);
+        const notificationRepository = new PrismaNotificationRepository();
 
-        const registration = await manageRegistrationStatusUseCase.execute({
-            registrationId: id,
-            organizerId: userId,
-            status: 'APPROVED'
-        });
+        const manageRegistrationStatusUseCase = new ManageRegistrationStatusUseCase(registrationRepository, eventRepository, notificationRepository);
+
+        const registration = await manageRegistrationStatusUseCase.execute(userId, id, 'APPROVE');
 
         return response.json(registration);
     }
@@ -55,13 +54,11 @@ export class RegistrationController {
 
         const registrationRepository = new PrismaRegistrationRepository();
         const eventRepository = new PrismaEventRepository();
-        const manageRegistrationStatusUseCase = new ManageRegistrationStatusUseCase(registrationRepository, eventRepository);
+        const notificationRepository = new PrismaNotificationRepository();
 
-        const registration = await manageRegistrationStatusUseCase.execute({
-            registrationId: id,
-            organizerId: userId,
-            status: 'REJECTED'
-        });
+        const manageRegistrationStatusUseCase = new ManageRegistrationStatusUseCase(registrationRepository, eventRepository, notificationRepository);
+
+        const registration = await manageRegistrationStatusUseCase.execute(userId, id, 'REJECT');
 
         return response.json(registration);
     }

@@ -1,29 +1,30 @@
 import { Request, Response } from 'express';
-import { z } from 'zod';
 import { CreateEventUseCase } from '../../../application/usecases/events/CreateEventUseCase';
 import { ListEventsUseCase } from '../../../application/usecases/events/ListEventsUseCase';
 import { GetEventDetailsUseCase } from '../../../application/usecases/events/GetEventDetailsUseCase';
+import { ExportRegistrationsUseCase } from '../../../application/usecases/events/ExportRegistrationsUseCase';
 import { PrismaEventRepository } from '../../../infrastructure/persistence/prisma/repositories/PrismaEventRepository';
 import { PrismaUserRepository } from '../../../infrastructure/persistence/prisma/repositories/PrismaUserRepository';
+import { PrismaRegistrationRepository } from '../../../infrastructure/persistence/prisma/repositories/PrismaRegistrationRepository';
+import { z } from 'zod';
 
 export class EventController {
     async create(request: Request, response: Response): Promise<Response> {
-        const createEventSchema = z.object({
+        const createEventBodySchema = z.object({
             title: z.string(),
             description: z.string(),
-            start_date: z.coerce.date(),
-            end_date: z.coerce.date(),
             location_address: z.string().optional(),
             location_url: z.string().optional(),
+            start_date: z.string(),
+            end_date: z.string(),
             price: z.number().optional(),
             type: z.enum(['FREE', 'PAID']).optional(),
-            requires_approval: z.boolean().optional(),
-            max_inscriptions: z.number().optional()
+            payment_info: z.string().optional(), // Novo campo
+            max_inscriptions: z.number().optional(),
         });
 
-        const data = createEventSchema.parse(request.body);
-
-        const organizer_id = request.user.id;
+        const data = createEventBodySchema.parse(request.body);
+        const userId = (request as any).user.id;
 
         const eventRepository = new PrismaEventRepository();
         const userRepository = new PrismaUserRepository();
@@ -31,7 +32,9 @@ export class EventController {
 
         const event = await createEventUseCase.execute({
             ...data,
-            organizer_id
+            start_date: new Date(data.start_date),
+            end_date: new Date(data.end_date),
+            organizer_id: userId
         });
 
         return response.status(201).json(event);
@@ -54,5 +57,20 @@ export class EventController {
         const event = await getEventDetailsUseCase.execute(id);
 
         return response.json(event);
+    }
+
+    async exportRegistrations(request: Request, response: Response): Promise<Response> {
+        const { id } = request.params;
+        const userId = (request as any).user.id;
+
+        const registrationRepo = new PrismaRegistrationRepository();
+        const eventRepo = new PrismaEventRepository();
+        const useCase = new ExportRegistrationsUseCase(registrationRepo, eventRepo);
+
+        const csvData = await useCase.execute(userId, id);
+
+        response.header('Content-Type', 'text/csv');
+        response.attachment(`registrations-${id}.csv`);
+        return response.send(csvData);
     }
 }
