@@ -4,4 +4,5 @@ export interface IUserRepository {
     findByEmail(email: string): Promise<User | null>;
     create(data: Prisma.UserCreateInput): Promise<User>;
     findById(id: string): Promise<User | null>;
+    update(userId: string, data: Partial<User>): Promise<User>;
 }

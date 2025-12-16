@@ -99,7 +99,7 @@ model Event {
 model Registration {
   id                    String             @id @default(uuid())
   event_id              String
-  event                 Event              @relation(fields: [event_id], references: [id])
+  event                 Event              @relation(fields: [event_id], references: [id], onDelete: Cascade)
   user_id               String
   user                  User               @relation(fields: [user_id], references: [id])
   status                RegistrationStatus @default(PENDING)
@@ -114,7 +114,7 @@ model Registration {
 model Checkin {
   id              String       @id @default(uuid())
   registration_id String
-  registration    Registration @relation(fields: [registration_id], references: [id])
+  registration    Registration @relation(fields: [registration_id], references: [id], onDelete: Cascade)
   timestamp       DateTime     @default(now())
   method          String       @default("MANUAL") // MANUAL, QR
 }
@@ -145,7 +145,7 @@ model Message {
 model Review {
   id          String   @id @default(uuid())
   event_id    String
-  event       Event    @relation(fields: [event_id], references: [id])
+  event       Event    @relation(fields: [event_id], references: [id], onDelete: Cascade)
   user_id     String
   user        User     @relation(fields: [user_id], references: [id])
   rating      Int      // 1-5
@@ -158,7 +158,7 @@ model Review {
 model Certificate {
   id              String   @id @default(uuid())
   event_id        String
-  event           Event    @relation(fields: [event_id], references: [id])
+  event           Event    @relation(fields: [event_id], references: [id], onDelete: Cascade)
   user_id         String
   user            User     @relation(fields: [user_id], references: [id])
   pdf_url         String

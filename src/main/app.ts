@@ -4,10 +4,12 @@ import cors from 'cors';
 import { ZodError } from 'zod';
 import { routes } from '../presentation/routes';
 import { AppError } from '../shared/errors/AppError';
+import uploadConfig from './config/upload';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use('/files', express.static(uploadConfig.directory));
 app.use(routes);
 
 app.use((err: Error, request: Request, response: Response, next: NextFunction) => {

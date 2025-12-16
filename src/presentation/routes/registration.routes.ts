@@ -14,5 +14,9 @@ registrationRoutes.get('/events/:eventId/registrations', ensureAuthenticated, re
 // Aprovar/Recusar inscrição (id da inscrição)
 registrationRoutes.patch('/registrations/:id/approve', ensureAuthenticated, registrationController.approve);
 registrationRoutes.patch('/registrations/:id/reject', ensureAuthenticated, registrationController.reject);
+registrationRoutes.delete('/registrations/:id', ensureAuthenticated, registrationController.delete);
+
+// Listar impressos do usuario logado (Meus Ingressos) - DEVE vir antes ou depois, sem conflito de rota
+registrationRoutes.get('/registrations', ensureAuthenticated, registrationController.listByUser); // Use generic /registrations or /users/me/registrations
 
 export { registrationRoutes };

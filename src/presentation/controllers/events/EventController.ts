@@ -3,6 +3,9 @@ import { CreateEventUseCase } from '../../../application/usecases/events/CreateE
 import { ListEventsUseCase } from '../../../application/usecases/events/ListEventsUseCase';
 import { GetEventDetailsUseCase } from '../../../application/usecases/events/GetEventDetailsUseCase';
 import { ExportRegistrationsUseCase } from '../../../application/usecases/events/ExportRegistrationsUseCase';
+import { UpdateEventUseCase } from '../../../application/usecases/events/UpdateEventUseCase';
+import { DeleteEventUseCase } from '../../../application/usecases/events/DeleteEventUseCase';
+import { ListOrganizerEventsUseCase } from '../../../application/usecases/events/ListOrganizerEventsUseCase';
 import { PrismaEventRepository } from '../../../infrastructure/persistence/prisma/repositories/PrismaEventRepository';
 import { PrismaUserRepository } from '../../../infrastructure/persistence/prisma/repositories/PrismaUserRepository';
 import { PrismaRegistrationRepository } from '../../../infrastructure/persistence/prisma/repositories/PrismaRegistrationRepository';
@@ -49,12 +52,28 @@ export class EventController {
         return response.json(events);
     }
 
+
+
+    async listByOrganizer(request: Request, response: Response): Promise<Response> {
+        const userId = (request as any).user.id;
+
+        const eventRepository = new PrismaEventRepository();
+        const listOrganizerEventsUseCase = new ListOrganizerEventsUseCase(eventRepository);
+
+        const events = await listOrganizerEventsUseCase.execute(userId);
+
+        return response.json(events);
+    }
+
     async show(request: Request, response: Response): Promise<Response> {
         const { id } = request.params;
-        const eventRepository = new PrismaEventRepository();
-        const getEventDetailsUseCase = new GetEventDetailsUseCase(eventRepository);
+        const userId = (request as any).user?.id;
 
-        const event = await getEventDetailsUseCase.execute(id);
+        const eventRepository = new PrismaEventRepository();
+        const registrationRepository = new PrismaRegistrationRepository();
+        const getEventDetailsUseCase = new GetEventDetailsUseCase(eventRepository, registrationRepository);
+
+        const event = await getEventDetailsUseCase.execute(id, userId);
 
         return response.json(event);
     }
@@ -71,6 +90,40 @@ export class EventController {
 
         response.header('Content-Type', 'text/csv');
         response.attachment(`registrations-${id}.csv`);
+        response.attachment(`registrations-${id}.csv`);
         return response.send(csvData);
+    }
+
+    async update(request: Request, response: Response): Promise<Response> {
+        const { id } = request.params;
+        const userId = (request as any).user.id;
+        const updates = request.body;
+
+        const eventRepository = new PrismaEventRepository();
+        const updateEventUseCase = new UpdateEventUseCase(eventRepository);
+
+        const event = await updateEventUseCase.execute({
+            id,
+            userId,
+            data: {
+                ...updates,
+                start_date: updates.start_date ? new Date(updates.start_date) : undefined,
+                end_date: updates.end_date ? new Date(updates.end_date) : undefined,
+            }
+        });
+
+        return response.json(event);
+    }
+
+    async delete(request: Request, response: Response): Promise<Response> {
+        const { id } = request.params;
+        const userId = (request as any).user.id;
+
+        const eventRepository = new PrismaEventRepository();
+        const deleteEventUseCase = new DeleteEventUseCase(eventRepository);
+
+        await deleteEventUseCase.execute({ id, userId });
+
+        return response.status(204).send();
     }
 }

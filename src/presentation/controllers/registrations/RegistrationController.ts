@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { CreateRegistrationUseCase } from '../../../application/usecases/registrations/CreateRegistrationUseCase';
 import { ListEventRegistrationsUseCase } from '../../../application/usecases/registrations/ListEventRegistrationsUseCase';
 import { ManageRegistrationStatusUseCase } from '../../../application/usecases/registrations/ManageRegistrationStatusUseCase';
+import { ListUserRegistrationsUseCase } from '../../../application/usecases/registrations/ListUserRegistrationsUseCase';
+import { CancelRegistrationUseCase } from '../../../application/usecases/registrations/CancelRegistrationUseCase';
 import { PrismaRegistrationRepository } from '../../../infrastructure/persistence/prisma/repositories/PrismaRegistrationRepository';
 import { PrismaEventRepository } from '../../../infrastructure/persistence/prisma/repositories/PrismaEventRepository';
 import { PrismaNotificationRepository } from '../../../infrastructure/persistence/prisma/repositories/PrismaNotificationRepository';
@@ -61,5 +63,28 @@ export class RegistrationController {
         const registration = await manageRegistrationStatusUseCase.execute(userId, id, 'REJECT');
 
         return response.json(registration);
+    }
+
+    async listByUser(request: Request, response: Response): Promise<Response> {
+        const userId = (request as any).user.id;
+
+        const registrationRepository = new PrismaRegistrationRepository();
+        const listUserRegistrationsUseCase = new ListUserRegistrationsUseCase(registrationRepository);
+
+        const registrations = await listUserRegistrationsUseCase.execute(userId);
+
+        return response.json(registrations);
+    }
+
+    async delete(request: Request, response: Response): Promise<Response> {
+        const { id } = request.params;
+        const userId = (request as any).user.id;
+
+        const registrationRepository = new PrismaRegistrationRepository();
+        const cancelRegistrationUseCase = new CancelRegistrationUseCase(registrationRepository);
+
+        await cancelRegistrationUseCase.execute({ id, userId });
+
+        return response.status(204).send();
     }
 }

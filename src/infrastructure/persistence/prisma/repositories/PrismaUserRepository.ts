@@ -23,4 +23,12 @@ export class PrismaUserRepository implements IUserRepository {
         });
         return user;
     }
+
+    public async update(userId: string, data: Partial<User>): Promise<User> {
+        const user = await prisma.user.update({
+            where: { id: userId },
+            data,
+        });
+        return user;
+    }
 }

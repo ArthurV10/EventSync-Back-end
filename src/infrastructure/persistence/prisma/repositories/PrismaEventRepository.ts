@@ -51,4 +51,29 @@ export class PrismaEventRepository implements IEventRepository {
         });
         return event;
     }
+
+    public async findByOrganizerId(organizerId: string): Promise<Event[]> {
+        const events = await prisma.event.findMany({
+            where: {
+                organizer_id: organizerId
+            },
+            orderBy: {
+                created_at: 'desc'
+            },
+            include: {
+                organizer: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
+        });
+        return events;
+    }
+
+    public async delete(id: string): Promise<void> {
+        await prisma.event.delete({
+            where: { id },
+        });
+    }
 }

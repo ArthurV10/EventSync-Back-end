@@ -40,10 +40,27 @@ export class PrismaRegistrationRepository implements IRegistrationRepository {
         });
     }
 
+    public async findByUserId(userId: string): Promise<Registration[]> {
+        return prisma.registration.findMany({
+            where: { user_id: userId },
+            include: {
+                event: true,
+                user: { select: { id: true, name: true, email: true } }
+            },
+            orderBy: { created_at: 'desc' }
+        });
+    }
+
     public async updateStatus(id: string, status: RegistrationStatus): Promise<Registration> {
         return prisma.registration.update({
             where: { id },
             data: { status },
+        });
+    }
+
+    public async delete(id: string): Promise<void> {
+        await prisma.registration.delete({
+            where: { id },
         });
     }
 }

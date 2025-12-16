@@ -5,5 +5,7 @@ export interface IRegistrationRepository {
     findById(id: string): Promise<Registration | null>;
     findByEventId(eventId: string): Promise<Registration[]>;
     findByUserAndEvent(userId: string, eventId: string): Promise<Registration | null>;
+    findByUserId(userId: string): Promise<Registration[]>;
     updateStatus(id: string, status: RegistrationStatus): Promise<Registration>;
+    delete(id: string): Promise<void>;
 }
