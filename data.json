@@ -1,0 +1,6 @@
+{
+    "name": "Valid User",
+    "email": "valid_user_final@example.com",
+    "password": "password123",
+    "role": "USER"
+}
